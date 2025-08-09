@@ -1,8 +1,9 @@
-package main
+package game
 
 import (
 	"fmt"
 	"math/rand"
+	"pruebaGO/printer"
 )
 
 type Game struct {
@@ -14,7 +15,11 @@ type Game struct {
 	playerOnTurn int
 }
 
-func StartGame(players []Player){
+func InitGame(){
+	startGame(configureGame())
+}
+
+func startGame(players []Player){
 
 	var game Game
 
@@ -31,11 +36,26 @@ func StartGame(players []Player){
 
 	getFirstCardOnTable(&game)
 
-
 	fmt.Println("Game Initialized")
 
 	play(&game)
 
+}
+
+func configureGame() []Player {
+	var players []Player
+
+	// number Of Players
+	playerStrings := printer.AskPlayers()
+	for p := 0; p < len(playerStrings); p++ {
+		player := Player{
+			PlayerName: playerStrings[p],
+			PlayerCards: make([]Card, 0),
+		}
+
+		players = append(players, player)
+	}
+	return players
 }
 
 
@@ -94,8 +114,13 @@ func getFirstCardOnTable(game *Game) {
 func play (game *Game){
 	// while true
 	for {
-		fmt.Println("----------------------------------------------------------------------------------------")
-		fmt.Println("----------------------------------------------------------------------------------------")
+
+		playersCards := game.players[game.playerOnTurn].PrintPlayersCards()
+
+		printer.PrintTurnInit(game.players[game.playerOnTurn].PlayerName,
+			playersCards,
+			game.cardOnTable.ToString(),
+		)
 
 		if game.players[game.playerOnTurn].Play(game){
 			return

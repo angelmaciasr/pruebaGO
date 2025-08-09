@@ -1,33 +1,23 @@
-package main
+package game
 
 import (
 	"fmt"
 	"math/rand"
+	"pruebaGO/printer"
 )
 
 type Player struct {
-	playerID int
-	playerName string
-	playerCards []Card
+	PlayerID   int
+	PlayerName string
+	PlayerCards []Card
 }
 
 
 func (p *Player) AddCard(card Card) {
-	p.playerCards = append(p.playerCards, card)
-	fmt.Printf("Player %s received card: %s\n", p.playerName, card.PrintCard())
+	p.PlayerCards = append(p.PlayerCards, card)
 }
 
 func (p *Player) Play(game *Game) bool {
-	fmt.Printf("Player %s's turn\n", p.playerName)
-	fmt.Printf("Player %s's cards: ", p.playerName)
-
-	for _, card := range p.playerCards {
-		fmt.Printf("| %s |", card.PrintCard())
-	}
-	fmt.Printf("\nCard on table: %s\n", game.cardOnTable.PrintCard())
-
-	
-
 	// Simulate player playing a card
 	return p.playTurn(game)
 }
@@ -37,13 +27,11 @@ func (p *Player) playTurn(game *Game) bool{
 	cards := p.getValidCards(game)
 
 	if len(cards) == 0 {
-		fmt.Printf("Player %s has no valid cards to play and steals a card.\n", p.playerName)
-
 		p.stealCard(game)
 
-		if isValidCard(p.playerCards[len(p.playerCards)-1], game.cardOnTable) {
+		if isValidCard(p.PlayerCards[len(p.PlayerCards)-1], game.cardOnTable) {
 			// Play the card
-			p.playCard(game, len(p.playerCards)-1)
+			p.playCard(game, len(p.PlayerCards)-1)
 		}
 
 		return false //if Player had to steal a card, didnt finished
@@ -58,13 +46,13 @@ func (p *Player) playTurn(game *Game) bool{
 
 
 func (p *Player) playCard(game *Game, cardIndex int) bool {
-	card := p.playerCards[cardIndex]
+	card := p.PlayerCards[cardIndex]
 
 	// Remove the card from player's hand
-	if cardIndex == len(p.playerCards)-1  {
-		p.playerCards = p.playerCards[:len(p.playerCards)-1] // Remove the last card
+	if cardIndex == len(p.PlayerCards)-1  {
+		p.PlayerCards = p.PlayerCards[:len(p.PlayerCards)-1] // Remove the last card
 	}else{
-		p.playerCards = append(p.playerCards[:cardIndex], p.playerCards[cardIndex+1:]...)
+		p.PlayerCards = append(p.PlayerCards[:cardIndex], p.PlayerCards[cardIndex+1:]...)
 	}
 
 	// Execute card actions
@@ -76,8 +64,8 @@ func (p *Player) playCard(game *Game, cardIndex int) bool {
 func (p *Player) getValidCards(game *Game) []int {
 	validCards := make([]int, 0)
 
-	for i := range p.playerCards {
-		if isValidCard(p.playerCards[i], game.cardOnTable) {
+	for i := range p.PlayerCards {
+		if isValidCard(p.PlayerCards[i], game.cardOnTable) {
 			validCards = append(validCards, i)
 		}
 	}
@@ -92,8 +80,9 @@ func isValidCard(card Card, topCard Card) bool {
 func (p *Player) stealCard(game *Game) {
 	card := game.cardsDeck[0]
 	game.cardsDeck = game.cardsDeck[1:] // Remove the card from the deck
-	p.playerCards = append(p.playerCards, card)
-	fmt.Printf("Player %s steals a card: %s\n", p.playerName, card.PrintCard())
+	p.PlayerCards = append(p.PlayerCards, card)
+	
+	printer.PrintStealCard(p.PlayerName, card.ToString())
 
 	if len(game.cardsDeck) == 0 {
 		game.cardsDeck = game.cardsPlayed
@@ -103,5 +92,15 @@ func (p *Player) stealCard(game *Game) {
 
 
 func (p *Player) isGameOver() bool {
-	return len(p.playerCards) == 0
+	return len(p.PlayerCards) == 0
+}
+
+
+func (p *Player) PrintPlayersCards() string {
+	var res string
+	for _, card := range p.PlayerCards {
+		res = fmt.Sprintf("| %s |", card.ToString())
+	}
+
+	return res
 }

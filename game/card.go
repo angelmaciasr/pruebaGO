@@ -1,6 +1,9 @@
-package main
+package game
 
-import "fmt"
+import (
+	"fmt"
+	"pruebaGO/printer"
+)
 
 // Card struct with a color field of type int
 type Card struct {
@@ -34,11 +37,11 @@ func (c Card) Play(game *Game) bool{
 	game.cardOnTable = c
 	game.cardsPlayed = append(game.cardsPlayed, game.cardOnTable)
 
-	fmt.Printf("Player %s plays: %s\n", game.players[game.playerOnTurn].playerName, game.cardOnTable.PrintCard())
+	printer.PrintCardPlay(game.players[game.playerOnTurn].PlayerName, c.ToString())
 
 	// Check game over
 	if game.players[game.playerOnTurn].isGameOver() {
-		fmt.Printf("Player %s wins!\n", game.players[game.playerOnTurn].playerName)
+		printer.PrintGameOver(game.players[game.playerOnTurn].PlayerName)
 		return true
 	}
 
@@ -54,7 +57,7 @@ func (c Card) Play(game *Game) bool{
 }
 
 
-func (c Card) PrintCard() string {
+func (c Card) ToString() string {
 	var value string
 	if c.value == -1 {
 		value = "Jump"
